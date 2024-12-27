@@ -30,16 +30,16 @@ def train_model(
     )
 
     # Extract labels from the dataset
-    labels = [item['label'] for item in full_dataset.data]  # Assuming each item has 'label'
+    labels = [item['label'] for item in full_dataset.data] 
 
-        # Perform stratified sampling
+    # Perform stratified sampling
     val_fraction = 0.2  # 20% validation data
     strat_split = StratifiedShuffleSplit(n_splits=1, test_size=val_fraction, random_state=42)
 
     # Get train and validation indices
     train_indices, val_indices = next(strat_split.split(range(len(full_dataset.data)), labels))
 
-        # Subset the dataset using the indices
+    # Subset the dataset using the indices
     train_dataset = Subset(full_dataset, train_indices)
     # val_dataset = Subset(full_dataset, val_indices)
 
@@ -138,7 +138,7 @@ def train_model(
         val_correct = 0
         val_total = 0
 
-        with torch.no_grad():  # No need to compute gradients for validation
+        with torch.no_grad(): 
             for images, labels in tqdm(val_dataloader):
                 images, labels = images.to(device), labels.to(device)
 

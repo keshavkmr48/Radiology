@@ -39,7 +39,7 @@ ResNet-18 is specifically fine-tuned here so that we can iterate faster during e
 #### 3. **Model Training (`training.py`)**
 - **Purpose**: Train a ResNet18 model on the processed dataset with early stopping and checkpointing.
 - **Pipeline**:
-  - **Data Loading**: Splits data into training (80%) and validation (20%) using stratified sampling.
+  - **Data Loading**: Splits data into training (80%) and validation (20%) using stratified sampling. Further Split the validation dataset into Validation and Test dataset in 1:1 ratio. 
   - **Model Definition**: 
     - Uses pretrained ResNet18 with the last layer modified to classify into four categories.
     - Applies ResNet-specific normalization.

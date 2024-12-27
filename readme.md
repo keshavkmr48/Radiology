@@ -3,6 +3,10 @@
 #### **Objective**
 This project aims to classify radiology images into four categories (COVID, Lung Opacity, Normal, and Viral Pneumonia) using a deep learning model (ResNet18). The pipeline covers downloading data, preprocessing it, and training the model with early stopping and augmentation.
 
+Medical images like radiology scans often contain subtle features (e.g., lung opacities or abnormalities). ResNet’s ability to learn hierarchical feature representations (low-level edges to high-level patterns) makes it ideal for such tasks. Its residual connections allow the model to retain key low-level features even in deeper layers, improving the ability to detect fine-grained details.
+
+ResNet-18 is specifically fine-tuned here so that we can iterate faster during experimentations as it's a smaller model with fewer patterns compared to other variants of 50 and 101. 
+
 ---
 
 ### **Steps Performed**
@@ -22,10 +26,10 @@ This project aims to classify radiology images into four categories (COVID, Lung
 - **Dataset Class**:
   - **`RadiologyDataset`**:
     - Loads images and masks from `raw_data_dir`.
-    - Converts images to grayscale and resizes them to 299x299 for ResNet.
+    - Converts images to grayscale and resizes them to 299x299 for ResNet and also normalized the image.
     - Saves processed images in the `processed_data_dir`.
     - Includes optional mask processing if `include_masks=True`.
-  - Supports augmentations like random horizontal flips and rotations.
+    - Supports augmentations like random horizontal flips and rotations.
 - **Key Functions**:
   - `prepare_dataloader`: Creates a dataset with transformations and processes data into tensors ready for training.
 - **Output**: Processed data is saved in `data/processed_data`.

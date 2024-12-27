@@ -32,21 +32,47 @@ def train_model(
     # Extract labels from the dataset
     labels = [item['label'] for item in full_dataset.data]  # Assuming each item has 'label'
 
-    # Perform stratified sampling
+        # Perform stratified sampling
     val_fraction = 0.2  # 20% validation data
     strat_split = StratifiedShuffleSplit(n_splits=1, test_size=val_fraction, random_state=42)
 
     # Get train and validation indices
     train_indices, val_indices = next(strat_split.split(range(len(full_dataset.data)), labels))
 
-    # Subset the dataset using the indices
-    train_dataset = Subset(full_dataset, train_indices).dataset
-    val_dataset = Subset(full_dataset, val_indices).dataset
-    
+        # Subset the dataset using the indices
+    train_dataset = Subset(full_dataset, train_indices)
+    # val_dataset = Subset(full_dataset, val_indices)
 
-    # Create DataLoader for both training and validation datasets
+    # Further split the validation dataset into valid and test subsets
+    test_strat_split = StratifiedShuffleSplit(n_splits=1, test_size=0.5, random_state=42)
+
+    # Extract labels for the validation dataset
+    val_labels = [full_dataset.data[idx]['label'] for idx in val_indices]
+
+    # Perform stratified sampling within val_dataset
+    test_strat_split = StratifiedShuffleSplit(n_splits=1, test_size=0.5, random_state=42)
+    test_indices_relative, valid_indices_relative = next(test_strat_split.split(range(len(val_indices)), val_labels))
+
+    # Map relative indices back to the original validation indices
+    test_indices = [val_indices[i] for i in test_indices_relative]
+    valid_indices = [val_indices[i] for i in valid_indices_relative]
+
+    # Create validation and test subsets
+    valid_dataset = Subset(full_dataset, valid_indices)
+    test_dataset = Subset(full_dataset, test_indices)
+
+
+
+    # Create DataLoader for all training and validation and test datasets
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    val_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+    
+    print("Training dataset Length:",len(train_dataloader.dataset))
+    print("Test dataset Length:",len(test_dataloader.dataset))
+    print("Validation dataset Length:",len(val_dataloader.dataset))
+
 
     # Initialize the model
     model = models.resnet18(pretrained=True)
@@ -154,6 +180,7 @@ def train_model(
             break
 
     print("Training complete.")
+    return model, train_dataloader, val_dataloader, test_dataloader
 
 
 if __name__ == "__main__":
@@ -163,7 +190,7 @@ if __name__ == "__main__":
     model_save_dir = "./models"
 
     # Train the model
-    train_model(
+    model, train_dataloader, val_dataloader, test_dataloader=train_model(
         raw_data_dir=raw_data_dir,
         processed_data_dir=processed_data_dir,
         model_save_dir=model_save_dir,
